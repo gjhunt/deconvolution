@@ -6,7 +6,7 @@
 # same structure as marker_probes but contains theta estimates for probes.
 # --> gamma
 # scalar estimate of gamma
-deconv = function(Y, marker_probes, thetas, gamma){
+phats = function(Y, marker_probes, thetas, gamma){
     K = length(marker_probes)
     
     contrib_est = function(i){
