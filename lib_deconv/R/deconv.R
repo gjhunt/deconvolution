@@ -17,7 +17,7 @@ deconv = function(affy_batch, pure_samples){
         return(phats(Y, marker_probes, theta_hats, gamma_hat))
     }
 
-    return(estimator)
+    return(estimator(d))
 }
 
 ## Estimate slope gamma.
@@ -42,7 +42,7 @@ estimate_thetas = function(d,pure_samples,marker_probes){
 
 ## Choose the number of marker probes and organize.
 # M -- the matrix output from rank_marker_probes with gene info. 
-choose_marker_probes = function(M,q_top=.999){
+choose_marker_probes = function(M,q_top=.9985){
     K = length(unique(M$top_probe))
     marker_probes = list()
     for(i in 1:K){
@@ -93,19 +93,18 @@ rank_marker_probes = function(d,pure_samples){
 # marker_probes -- list of list of vectors of probes. Level 1 is cell type, level two is genes.
 # thetas -- same structure as marker_probes but contains theta estimates for probes.
 # gamma -- scalar estimate of gamma.
-phats = function(Y, marker_probes, thetas, gamma){
+phats = function(Y, marker_probes, thetas, gamma){    
     K = length(marker_probes)
     
     contrib_est = function(i){
-        Y_i = lapply(marker_probes[[i]],function(x){Y[,x]})
+        Y_i = lapply(marker_probes[[i]],function(x){Y[,x,drop=FALSE]})
         theta_adj = mapply('-',Y_i,thetas[[i]],SIMPLIFY=FALSE)
-        ests = lapply(theta_adj,function(x){mean(2^(x/gamma))})
+        ests = lapply(theta_adj,function(x){rowMeans(2^(x/gamma))})
         amt = Reduce("+",ests)/length(ests)
         return(amt)
     }
 
     contribs = sapply(1:K,contrib_est)
-    phats = contribs / sum(contribs)
-
+    phats = t(apply(contribs,1,function(x){x/sum(x)}))
     return(phats)
 }
