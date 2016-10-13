@@ -17,7 +17,9 @@ deconv = function(affy_batch, pure_samples){
         return(phats(Y, marker_probes, theta_hats, gamma_hat))
     }
 
-    return(estimator(d))
+    ests = estimator(d)
+    colnames(ests) = names(pure_samples)
+    return(ests)
 }
 
 ## Estimate slope gamma.
@@ -48,7 +50,8 @@ choose_marker_probes = function(M,q_top=.9985){
     for(i in 1:K){
         type_i = which(M$top_probe==i)
         M_i = M[type_i,]
-        top_M = which(M_i$slope>=quantile(M_i$slope,q_top))
+        #top_M = which(M_i$slope>=quantile(M_i$slope,q_top))
+        top_M = order(M_i$slope,decreasing=TRUE)[1:250]
         tops = M_i[top_M,]
         tmp_list = list()
         for(j in unique(tops$gene)){
