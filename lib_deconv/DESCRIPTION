@@ -1,6 +1,6 @@
 Package: deconv
 Title: Cell Type Deconvolution
-Version: 0.02
+Version: 0.03
 Date: 10/3/2016
 Author: Gregory Hunt
 Maintainer: Gregory Hunt <gjhunt@umich.edu>
