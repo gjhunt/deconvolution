@@ -12,7 +12,7 @@ vignette: >
 We can show a basic deconvolution example by working with a data set created from rats. This is available on GEO with accession [GSE19830](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE19830).
 
 First let's download the data set. 
-```{r,warning=FALSE,cache=TRUE}
+```{r,warning=FALSE}
 suppressPackageStartupMessages(library("affy"))
 rat.url <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE19nnn/GSE19830/suppl/GSE19830_RAW.tar"
 rat.dir <- "rat_data"
@@ -21,6 +21,12 @@ rat.file <- "rat.tar"
 download.file(rat.url, destfile = rat.file)
 untar(rat.file, exdir = rat.dir)
 rat <- ReadAffy(celfile.path = rat.dir)
+```
+
+```{r,echo=FALSE,results='hide'}
+file.remove(rat.file)
+file.remove(paste(rat.dir,dir(rat.dir),sep="/"))
+unlink(rat.dir,force=TRUE,recursive=TRUE)
 ```
 
 This is a data set of rat brain, liver and lung cells that have been mixed together in various proportions and then analyzed with by DNA microarrays. The true mixing proportions are encoded in the following matrix. 
