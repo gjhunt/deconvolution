@@ -19,4 +19,3 @@ List of vectors. Each vector is estimated estimated offsets of markers for each 
 \description{
 Estimate the offset terms.
 }
-

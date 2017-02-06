@@ -5,6 +5,7 @@
 #' @param gamma_est Scalar. Estimated slope. 
 #' 
 #' @return Estimated matrix of mixing proportions.
+#' @export
 est_phats <- function(Y, markers, theta_ests, gamma_est) {
     
     K <- length(markers)

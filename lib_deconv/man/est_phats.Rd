@@ -21,4 +21,3 @@ Estimated matrix of mixing proportions.
 \description{
 Estimate the gene type proportions.
 }
-

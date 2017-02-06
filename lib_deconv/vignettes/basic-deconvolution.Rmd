@@ -54,31 +54,61 @@ Y[1:4,1:4]
 ```
 Here each row is a different experiment and each column is the log expression measurement of a particular oligonucleotide. 
 
-Given the data and the pure samples we can run our deconvolution algorithm. 
+Given the data and the pure samples we can run our deconvolution algorithm. First let's run it blindly just supplying the expression matrix and the pure sample list. 
 ```{r,cache=FALSE}
 library('deconv')
-n_choose <- 250
-dc <- deconv(Y, pure_samples, n_choose)
+dc <- deconv(Y, pure_samples)
 phats <- dc$estimates
 head(phats)
 ```
-Here we have chosen to use the top 250 markers for each cell type. We plot the estimated mixing proportions against the truth.
+We plot the estimated mixing proportions against the truth.
 
 ```{r,results='asis',fig.height=5,fig.width=5,cache=FALSE}
-plot(rat.truth,phats,xlab="Truth",ylab="Estimates")
+plot(rat.truth,phats,xlab="Truth",ylab="Estimates",xlim=c(0,1),ylim=c(0,1))
 abline(coef=c(0,1))
 ```
 
+There are a lot of arguments that can be supplied to the deconvolution function if desired. The three most important arguments are n_choose, full_markers and gamma. Instead of letting deconv adaptively compute these we can specify them in advance. Often it is useful to pre-compute the markers which allows us to test different values of the other arguemnts. 
+```{r}
+marks = find_markers(Y,pure_samples)
+dc <- deconv(Y, pure_samples, n_choose = c(100,101,102), gamma=.7, full_markers = marks)
+phats <- dc$estimates
+head(phats)
+dc <- deconv(Y, pure_samples, n_choose = 50, gamma = 1, full_markers = marks)
+phats <- dc$estimates
+head(phats)
+```
+
+We can also let deconv adaptively choose quantities. 
+```{r}
+td = gen_test_data(Y,pure_samples)
+n_choose = est_n(td,pure_samples,marks,.7,rep(50,3),n_reps=1,err.plot=TRUE)
+gamma = est_gamma(td,pure_samples,marks,.7,n_choose,n_reps=1,err.plot=TRUE)
+```
+
+
+Doing these in advance often allows us to play with parameters without having to recompute them each time. 
+```{r}
+dc <- deconv(Y, pure_samples,n_choose,marks,gamma)
+phats <- dc$estimates
+plot(rat.truth,phats,xlab="Truth",ylab="Estimates",xlim=c(0,1),ylim=c(0,1))
+abline(coef=c(0,1))
+dc2 <- deconv(Y, pure_samples,n_choose,marks,.7)
+phats2 <- dc2$estimates
+points(rat.truth,phats2,col='blue')
+dc3 <- deconv(Y, pure_samples,200,marks,gamma)
+phats3 <- dc3$estimates
+points(rat.truth,phats3,col='red')
+```
 
 We can also run the algorithm on RMA summarized expressions. 
 ```{r,warning=FALSE,results='hide',cache=FALSE}
 Y <- data.frame(affy::rma(rat,verbose=FALSE))
 
-n_choose <- 100
-dc <- deconv(Y, pure_samples, n_choose)
+dc <- deconv(Y, pure_samples)
 phats <- dc$estimates
 ```
-Here we have chosen to use the top 100 markers for each cell type. We plot the estimated mixing proportions against the truth.
+We plot the estimated mixing proportions against the truth.
 
 ```{r,results='asis',fig.height=5,fig.width=5,cache=FALSE}
 plot(rat.truth,phats,xlab="Truth",ylab="Estimates")

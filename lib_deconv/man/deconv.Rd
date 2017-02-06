@@ -4,19 +4,35 @@
 \alias{deconv}
 \title{Deconvolve expressions.}
 \usage{
-deconv(Y, pure_samples, n_choose)
+deconv(Y, pure_samples, n_choose = NULL, full_markers = NULL,
+  gamma = NULL, n_test = 500, n_test_reps = 2, gamma_test_reps = 2,
+  seed = NULL)
 }
 \arguments{
-\item{Y}{The expression matrix.}
+\item{Y}{The expression matrix. Data frame or matrix. Each row contains expression measurements for a particular sample.}
 
-\item{pure_samples}{The pure sample indicies.}
+\item{pure_samples}{The pure sample indicies. List of vectors. The i-th element of list is a vector of indicies (rows of Y) that are pure samples of type i.}
 
-\item{n_choose}{How many markers to use.}
+\item{n_choose}{How many markers to use. Can either be a single integer or a vector of integers, one for each cell type. If a single integer then all cell types use that number of markers. If not supplied number of markers will be adaptively chosen using \code{\link{est_n}}.}
+
+\item{full_markers}{User supplied markers. List of vectors. List should be same length as \code{pure_samples}. Each element of list is vector of indicies (columns of Y) that will be considered markers of that particular type. If not supplied then list of markers will be determined by \code{\link{find_markers}}.}
+
+\item{gamma}{Expression sensitivity parameter. Single positive numeric. If not supplied then \code{gamma} will be determined by the function \code{\link{est_gamma}}.}
+
+\item{n_test}{How many observations to generate for training sample used to optiimize \code{gamma} or \code{n_choose} when they are not specified. Single integer.}
+
+\item{n_test_reps}{How many iterations to use in optimization of \code{n_choose} when it is not speicified by user. Single integer.}
+
+\item{gamma_test_reps}{How many iterations to use in optimization of \code{gamma} when it is not speicified by user. Single integer.}
+
+\item{seed}{Seed for randomization used when adaptively choosing \code{n_choose} or \code{gamma}.}
 }
 \value{
-Matrix of estimated mixing proportions.
+Matrix of estimated mixing proportions. One row for each sample (row) in \code{Y}. One column for each cell type.
 }
 \description{
 Deconvolve expressions.
 }
-
+\seealso{
+\code{\link{find_markers}}, \code{\link{est_n}}, \code{\link{est_gamma}}
+}
