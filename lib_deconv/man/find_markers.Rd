@@ -4,7 +4,7 @@
 \alias{find_markers}
 \title{Find marker measurements for each group.}
 \usage{
-find_markers(Y, pure_samples, method = "diff")
+find_markers(Y, pure_samples, method = "eta")
 }
 \arguments{
 \item{Y}{the expression data set.}
@@ -14,7 +14,7 @@ find_markers(Y, pure_samples, method = "diff")
 \item{method}{Method to select markers.}
 }
 \value{
-List. Respective ranked markers for each group.
+List with two elements. ``L'' is respective ranked markers for each group and ``V'' is the corresponding values of the ranking method (lower are better).
 }
 \description{
 Find marker measurements for each group.

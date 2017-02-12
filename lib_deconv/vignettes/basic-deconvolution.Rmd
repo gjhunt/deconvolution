@@ -54,10 +54,10 @@ Y[1:4,1:4]
 ```
 Here each row is a different experiment and each column is the log expression measurement of a particular oligonucleotide. 
 
-Given the data and the pure samples we can run our deconvolution algorithm. First let's run it blindly just supplying the expression matrix and the pure sample list. 
+Given the data and the pure samples we can run our deconvolution algorithm. First let's run it blindly just supplying the expression matrix, the pure sample list and tell it how to set gamma based on the data type. 
 ```{r,cache=FALSE}
 library('deconv')
-dc <- deconv(Y, pure_samples)
+dc <- deconv(Y, pure_samples,gamma='microarray-probe')
 phats <- dc$estimates
 head(phats)
 ```
@@ -70,8 +70,9 @@ abline(coef=c(0,1))
 
 There are a lot of arguments that can be supplied to the deconvolution function if desired. The three most important arguments are n_choose, full_markers and gamma. Instead of letting deconv adaptively compute these we can specify them in advance. Often it is useful to pre-compute the markers which allows us to test different values of the other arguemnts. 
 ```{r}
-marks = find_markers(Y,pure_samples)
-dc <- deconv(Y, pure_samples, n_choose = c(100,101,102), gamma=.7, full_markers = marks)
+marker_list = find_markers(Y,pure_samples)
+marks = marker_list$L
+dc <- deconv(Y, pure_samples, n_choose = c(100,101,102), gamma=.6, full_markers = marks)
 phats <- dc$estimates
 head(phats)
 dc <- deconv(Y, pure_samples, n_choose = 50, gamma = 1, full_markers = marks)
@@ -79,24 +80,45 @@ phats <- dc$estimates
 head(phats)
 ```
 
-We can also let deconv adaptively choose quantities. 
+One useful way to choose the number of markers is to threshold the value of the marker ranking algorithm.
 ```{r}
-td = gen_test_data(Y,pure_samples)
-n_choose = est_n(td,pure_samples,marks,.7,rep(50,3),n_reps=1,err.plot=TRUE)
-gamma = est_gamma(td,pure_samples,marks,.7,n_choose,n_reps=1,err.plot=TRUE)
+thresh = .01
+K = length(pure_samples)
+n_choose = sapply(1:K,function(i){max(which(marker_list$V[[i]] > (-thresh)))})
 ```
 
-
-Doing these in advance often allows us to play with parameters without having to recompute them each time. 
+Doing this in advance often allows us to play with parameters without having to recompute them each time. 
 ```{r}
-dc <- deconv(Y, pure_samples,n_choose,marks,gamma)
+dc <- deconv(Y, pure_samples,n_choose,marks,gamma=1.1)
 phats <- dc$estimates
 plot(rat.truth,phats,xlab="Truth",ylab="Estimates",xlim=c(0,1),ylim=c(0,1))
 abline(coef=c(0,1))
-dc2 <- deconv(Y, pure_samples,n_choose,marks,.7)
+dc2 <- deconv(Y, pure_samples,n_choose,marks,gamma=.7)
 phats2 <- dc2$estimates
 points(rat.truth,phats2,col='blue')
-dc3 <- deconv(Y, pure_samples,200,marks,gamma)
+dc3 <- deconv(Y, pure_samples,200,marks,gamma=.5)
+phats3 <- dc3$estimates
+points(rat.truth,phats3,col='red')
+```
+
+We can test different methods of choosing markers by specifying the ``marker_method`` argument.
+```{r}
+marker_list = find_markers(Y,pure_samples)
+marks = marker_list$L
+thresh = .01
+K = length(pure_samples)
+n_choose = sapply(1:K,function(i){max(which(marker_list$V[[i]] > (-thresh)))})
+
+dc <- deconv(Y, pure_samples,gamma='microarray-probe',n_choose,marker_method = 'eta')
+phats <- dc$estimates
+plot(rat.truth,phats,xlab="Truth",ylab="Estimates",xlim=c(0,1),ylim=c(0,1))
+abline(coef=c(0,1))
+
+dc <- deconv(Y, pure_samples,n_choose,marker_method = 'diff',gamma='microarray-probe')
+phats2 <- dc2$estimates
+points(rat.truth,phats2,col='blue')
+
+dc3 <- deconv(Y, pure_samples,n_choose,marker_method='regression',gamma='microarray-probe')
 phats3 <- dc3$estimates
 points(rat.truth,phats3,col='red')
 ```
@@ -105,7 +127,7 @@ We can also run the algorithm on RMA summarized expressions.
 ```{r,warning=FALSE,results='hide',cache=FALSE}
 Y <- data.frame(affy::rma(rat,verbose=FALSE))
 
-dc <- deconv(Y, pure_samples)
+dc <- deconv(Y, pure_samples,gamma="microarray-gene")
 phats <- dc$estimates
 ```
 We plot the estimated mixing proportions against the truth.

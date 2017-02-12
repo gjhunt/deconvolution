@@ -4,7 +4,7 @@
 \alias{est_phats}
 \title{Estimate the gene type proportions.}
 \usage{
-est_phats(Y, markers, theta_ests, gamma_est)
+est_phats(Y, markers, baseline_ests, gamma_est)
 }
 \arguments{
 \item{Y}{Matrix of expressions to deconvolve. Rows are observations.}
@@ -13,7 +13,7 @@ est_phats(Y, markers, theta_ests, gamma_est)
 
 \item{gamma_est}{Scalar. Estimated slope.}
 
-\item{thetas_ests}{List of vectors (same as markers). One list entry for each type. Vector is estimated offset for each marker of the respective type.}
+\item{basline_ests}{List of vectors (same as markers). One list entry for each type. Vector is estimated offset for each marker of the respective type.}
 }
 \value{
 Estimated matrix of mixing proportions.

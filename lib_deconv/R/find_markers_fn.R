@@ -2,15 +2,32 @@
 #' @param Y the expression data set. 
 #' @param pure_samples List of pure samples for each group.
 #' @param method Method to select markers. 
-#' @return List. Respective ranked markers for each group.
+#' @return List with two elements. ``L'' is respective ranked markers for each group and ``V'' is the corresponding values of the ranking method (lower are better). 
 #' @export
-find_markers <- function(Y, pure_samples, method = "diff") {
+find_markers <- function(Y, pure_samples, method = "eta") {
     K <- length(pure_samples)
     N <- dim(Y)[2]
     pure <- unlist(pure_samples)
     
     C <- array(0, c(K, N))
     colnames(C) <- colnames(Y)
+    
+    
+    if (method == "eta") {
+        eta_hats <- t(sapply(pure_samples, function(x) {
+            colMeans(exp(Y[x, , drop = FALSE]))
+        }))
+        C <- t(sapply(1:K, function(i) {
+            apply(eta_hats[-i, ], 2, sum)/eta_hats[i, ]
+        }))
+        
+        pick_top <- function(x) {
+            m <- which.min(x)
+            return(c(m, -x[m]))
+        }
+        
+        M <- apply(C, 2, pick_top)
+    }
     
     if (method == "regression") {
         for (i in 1:K) {
@@ -57,5 +74,10 @@ find_markers <- function(Y, pure_samples, method = "diff") {
         sM[sM$top == i, "rn"]
     })
     
-    return(L)
+    V <- lapply(1:K, function(i) {
+        sM[sM$top == i, "value"]
+    })
+    
+    
+    return(list(L = L, V = V))
 }
