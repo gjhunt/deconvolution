@@ -33,7 +33,7 @@ deconv <- function(Y, pure_samples, gamma, n_choose = NULL, full_markers = NULL,
             gamma <- 0.9392593
         } else if (gamma == "microarray-gene") {
             gamma <- 0.9902935
-        } else if (gamma == "rng-seq") {
+        } else if (gamma == "rna-seq") {
             gamma <- 1
         }
         
