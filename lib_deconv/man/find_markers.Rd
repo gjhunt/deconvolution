@@ -4,14 +4,21 @@
 \alias{find_markers}
 \title{Find marker measurements for each group.}
 \usage{
-find_markers(Y, pure_samples, method = "eta")
+find_markers(Y, pure_samples, data_type = NULL, gamma = NULL,
+  method = "eta")
 }
 \arguments{
 \item{Y}{the expression data set.}
 
 \item{pure_samples}{List of pure samples for each group.}
 
+\item{data_type}{The data type.}
+
+\item{gamma}{The sensitivity tuning parameter if we want to over-ride choice by ``data-type``.}
+
 \item{method}{Method to select markers.}
+
+\item{data_type}{A string indicating the data type. Use to choose pre-estimated gamma value. Current support for probe-level microarray as ``microarray-probe'', gene-level microarray as ``microarray-gene'' or rna-seq as ``rna-seq''.}
 }
 \value{
 List with two elements. ``L'' is respective ranked markers for each group and ``V'' is the corresponding values of the ranking method (lower are better).

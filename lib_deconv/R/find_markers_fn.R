@@ -1,10 +1,16 @@
 #' Find marker measurements for each group.
 #' @param Y the expression data set. 
 #' @param pure_samples List of pure samples for each group.
+#' @param data_type The data type. 
+#' @param gamma The sensitivity tuning parameter if we want to over-ride choice by ``data-type``.
+#' @param data_type A string indicating the data type. Use to choose pre-estimated gamma value. Current support for probe-level microarray as ``microarray-probe'', gene-level microarray as ``microarray-gene'' or rna-seq as ``rna-seq''.
 #' @param method Method to select markers. 
 #' @return List with two elements. ``L'' is respective ranked markers for each group and ``V'' is the corresponding values of the ranking method (lower are better). 
 #' @export
-find_markers <- function(Y, pure_samples, method = "eta") {
+find_markers <- function(Y, pure_samples, data_type = NULL, gamma = NULL, method = "eta") {
+    if (is.null(gamma)) 
+        gamma <- get_gamma(data_type)
+    
     K <- length(pure_samples)
     N <- dim(Y)[2]
     pure <- unlist(pure_samples)
@@ -12,10 +18,9 @@ find_markers <- function(Y, pure_samples, method = "eta") {
     C <- array(0, c(K, N))
     colnames(C) <- colnames(Y)
     
-    
     if (method == "eta") {
         eta_hats <- t(sapply(pure_samples, function(x) {
-            colMeans(exp(Y[x, , drop = FALSE]))
+            colMeans(exp(Y[x, , drop = FALSE]))/gamma
         }))
         C <- t(sapply(1:K, function(i) {
             apply(eta_hats[-i, ], 2, sum)/eta_hats[i, ]
