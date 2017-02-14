@@ -2,7 +2,6 @@
 
 export(baseline_exprs)
 export(deconv)
-export(est_gamma)
 export(est_n)
 export(est_phats)
 export(find_markers)
