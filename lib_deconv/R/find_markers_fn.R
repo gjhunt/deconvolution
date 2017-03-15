@@ -23,7 +23,7 @@ find_markers <- function(Y, pure_samples, data_type = NULL, gamma = NULL, method
             colMeans(exp(Y[x, , drop = FALSE]))/gamma
         }))
         C <- t(sapply(1:K, function(i) {
-            apply(eta_hats[-i, ], 2, sum)/eta_hats[i, ]
+            apply(eta_hats[-i, , drop = FALSE], 2, sum)/eta_hats[i, ]
         }))
         
         pick_top <- function(x) {
