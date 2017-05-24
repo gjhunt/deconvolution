@@ -1,1 +1,1 @@
-This repo is no long in use. Please visit the (dtangle repo)[https://github.com/gjhunt/dtangle].
+This repo is no longer in use. Please visit the (dtangle repo)[https://github.com/gjhunt/dtangle].
